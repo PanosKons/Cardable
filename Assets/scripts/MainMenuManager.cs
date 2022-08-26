@@ -9,4 +9,8 @@ public class MainMenuManager : MonoBehaviour
     {
         SceneManager.LoadScene(1);
     }
+    public void Reset()
+    {
+        LevelManager.UnlockedLevel = 0;
+    }
 }

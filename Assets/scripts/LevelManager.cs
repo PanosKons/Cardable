@@ -64,4 +64,8 @@ public class LevelManager : MonoBehaviour
     {
         Inventory.SetActive(false);
     }
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
 }
