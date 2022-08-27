@@ -15,6 +15,7 @@ public class LevelManager : MonoBehaviour
     public CardUnlocks[] Progression;
     public static uint UnlockedLevel;
     public GameObject Inventory;
+    public GameObject PrepareScreen;
     public static LevelManager Instance;
     public static bool FirstTime = true;
     public static int CurrentLevel = 0;
@@ -53,7 +54,7 @@ public class LevelManager : MonoBehaviour
         {
             GameManager.info = Levels[Index];
             CurrentLevel = Index;
-            SceneManager.LoadScene(2);
+            PrepareScreen.SetActive(true);
         }
     }
     public void OpenInventory()
@@ -67,5 +68,13 @@ public class LevelManager : MonoBehaviour
     public void GoToMainMenu()
     {
         SceneManager.LoadScene(0);
+    }
+    public void ClosePrepareScreen()
+    {
+        PrepareScreen.SetActive(false);
+    }
+    public void GenerateLevel()
+    {
+        SceneManager.LoadScene(2);
     }
 }

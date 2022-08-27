@@ -11,12 +11,14 @@ public class CardDisplay : MonoBehaviour
     {
         Card card = GameManager.Instance.DrawnCards[CardId];
         Text.text = "\n" + card.name + "\n" + "--------" +"\n";
-        foreach (Effect effect in card.effects)
-        {
-            Text.text += effect.GetString() + "\n";
-        }
+        if(card.effects != null)
+            foreach (Effect effect in card.effects)
+            {
+                Text.text += effect.GetString() + "\n";
+            }
         Text.text += "--------" + "\n" + "Cost: " + card.StaminaCost;
     }
+    public uint Multiplier = 1;
     public void OnCardPressed()
     {
         if (GameManager.Instance.Rerolling == true)
@@ -40,26 +42,41 @@ public class CardDisplay : MonoBehaviour
                 switch (effect.effectType)
                 {
                     case EffectType.AttackDamageIncement:
-                        player.AttackDamage += effect.effectMagnitude;
+                        player.AttackDamage += effect.effectMagnitude * Multiplier;
                         break;
                     case EffectType.AttackDamageDecrement:
-                        if (player.AttackDamage > effect.effectMagnitude)
-                            player.AttackDamage -= effect.effectMagnitude;
+                        if (player.AttackDamage > effect.effectMagnitude * Multiplier)
+                            player.AttackDamage -= effect.effectMagnitude * Multiplier;
                         else player.AttackDamage = 0;
                         break;
                     case EffectType.HealthPointsIncrement:
-                        player.HealthPoints += effect.effectMagnitude;
+                        player.HealthPoints += effect.effectMagnitude * Multiplier;
                         if (player.HealthPoints > player.MaxHealth)
                             player.HealthPoints = player.MaxHealth;
                         break;
                     case EffectType.HealthPointsDecrement:
-                        if (player.HealthPoints > effect.effectMagnitude)
-                            player.HealthPoints -= effect.effectMagnitude;
+                        if (player.HealthPoints > effect.effectMagnitude * Multiplier)
+                            player.HealthPoints -= effect.effectMagnitude * Multiplier;
                         else player.HealthPoints = 0;
                         break;
                     case EffectType.Attack:
-                        if (enemy.HealthPoints > player.AttackDamage)
-                            enemy.HealthPoints -= player.AttackDamage;
+                        if (enemy.CurrentMood == Mood.Thorns)
+                        {
+                            if (player.HealthPoints > enemy.AttackDamage )
+                                player.HealthPoints -= enemy.AttackDamage;
+                            else
+                            {
+                                player.HealthPoints = 0;
+                                GameManager.Instance.WonGame();
+                            }
+                        }
+                        if (player.CurrentMood == Mood.Rage)
+                        {
+                            Multiplier *= 3;
+                            Multiplier /= 2;
+                        }
+                        if (enemy.HealthPoints > player.AttackDamage * Multiplier)
+                            enemy.HealthPoints -= player.AttackDamage * Multiplier;
                         else
                         {
                             enemy.HealthPoints = 0;
@@ -67,20 +84,20 @@ public class CardDisplay : MonoBehaviour
                         }
                         break;
                     case EffectType.MaxStaminaIncrement:
-                        GameManager.info.MaxStamina += effect.effectMagnitude;
+                        GameManager.info.MaxStamina += effect.effectMagnitude * Multiplier;
                         break;
                     case EffectType.MaxStaminaDecrement:
-                        if (GameManager.info.MaxStamina > effect.effectMagnitude)
-                            GameManager.info.MaxStamina -= effect.effectMagnitude;
+                        if (GameManager.info.MaxStamina > effect.effectMagnitude * Multiplier)
+                            GameManager.info.MaxStamina -= effect.effectMagnitude * Multiplier;
                         else
                             GameManager.info.MaxStamina = 0;
                         break;
                     case EffectType.CardIncrement:
                         {
-                            if (GameManager.info.CardCount + effect.effectMagnitude <= GameManager.Instance.MaxCardCount)
+                            if (GameManager.info.CardCount + effect.effectMagnitude * Multiplier <= GameManager.Instance.MaxCardCount)
                             {
-                                GameManager.info.CardCount += effect.effectMagnitude;
-                                for (uint i = GameManager.info.CardCount - effect.effectMagnitude; i < GameManager.info.CardCount; i++)
+                                GameManager.info.CardCount += effect.effectMagnitude * Multiplier;
+                                for (uint i = GameManager.info.CardCount - effect.effectMagnitude * Multiplier; i < GameManager.info.CardCount; i++)
                                 {
                                     GameManager.Instance.DrawNewCard(i);
                                 }
@@ -88,16 +105,23 @@ public class CardDisplay : MonoBehaviour
                             }
                         }
                         break;
+                    case EffectType.SetMood:
+                        player.CurrentMood = (Mood)effect.effectMagnitude;
+                        break;
                     case EffectType.CardDecrement:
                         {
-                            if (GameManager.info.CardCount > effect.effectMagnitude)
-                                GameManager.info.CardCount -= effect.effectMagnitude;
+                            if (GameManager.info.CardCount > effect.effectMagnitude * Multiplier)
+                                GameManager.info.CardCount -= effect.effectMagnitude * Multiplier;
                             else
                                 GameManager.info.CardCount = 0;
                             GameManager.Instance.MakeCardDisplays();
                         }
                         break;
+                    case EffectType.DoubleEffect:
+                        Multiplier = effect.effectMagnitude;
+                        break;
                 }
+                if (effect.effectType != EffectType.DoubleEffect) Multiplier = 1;
             }
             GameManager.info.Stamina -= card.StaminaCost;
             GameManager.info.Player = player;

@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-public class AttackText : MonoBehaviour
+
+public class HealthText : MonoBehaviour
 {
     public bool IsInventory;
     public bool IsPlayer;
@@ -19,22 +19,22 @@ public class AttackText : MonoBehaviour
         {
             if (IsPlayer == true)
             {
-                value = GameManager.info.Player.AttackDamage;
+                value = GameManager.info.Player.HealthPoints;
             }
             else
             {
-                value = GameManager.info.Enemy.AttackDamage;
+                value = GameManager.info.Enemy.HealthPoints;
             }
         }
         else
         {
             if (IsPlayer == true)
             {
-                value = LevelManager.Instance.Levels[LevelManager.CurrentLevel].Player.AttackDamage;
+                value = LevelManager.Instance.Levels[LevelManager.CurrentLevel].Player.HealthPoints;
             }
             else
             {
-                value = LevelManager.Instance.Levels[LevelManager.CurrentLevel].Enemy.AttackDamage;
+                value = LevelManager.Instance.Levels[LevelManager.CurrentLevel].Enemy.HealthPoints;
             }
         }
         Text.text = value.ToString();

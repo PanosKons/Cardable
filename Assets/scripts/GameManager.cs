@@ -16,7 +16,7 @@ public struct LevelInfo
 }
 public enum EffectType
 {
-    AttackDamageIncement,HealthPointsIncrement, AttackDamageDecrement, HealthPointsDecrement,Attack,MaxStaminaIncrement,MaxStaminaDecrement,CardIncrement,CardDecrement
+    AttackDamageIncement,HealthPointsIncrement, AttackDamageDecrement, HealthPointsDecrement,Attack,MaxStaminaIncrement,MaxStaminaDecrement,CardIncrement,CardDecrement,DoubleEffect,SetMood
 }
 [System.Serializable]
 public class Effect
@@ -45,6 +45,10 @@ public class Effect
                 return "+" + effectMagnitude + " Card"; 
             case EffectType.CardDecrement:
                 return "-" + effectMagnitude + " Card";
+            case EffectType.DoubleEffect:
+                return "Next card x" + effectMagnitude;
+            case EffectType.SetMood:
+                return "Apply " + ((Mood)(effectMagnitude)).ToString();
             default: throw new System.Exception();
         }
     }
@@ -63,12 +67,17 @@ public struct Card : IComparable<Card>
         return 1;
     }
 }
+public enum Mood
+{
+    None,Healing,Thorns,Rage
+}
 [System.Serializable]
 public struct Entity
 {
     public uint HealthPoints;
     public uint AttackDamage;
     public uint MaxHealth;
+    public Mood CurrentMood;
 }
 public class GameManager : MonoBehaviour
 {
@@ -107,8 +116,8 @@ public class GameManager : MonoBehaviour
             GameObject cardDisplay = Instantiate(CardDisplayPrefab, Canvas, true);
             cardDisplay.GetComponent<CardDisplay>().CardId = i;
             RectTransform rect = cardDisplay.GetComponent<RectTransform>();
-            rect.transform.localPosition = new Vector3((step * (i + 1)) - 450, 115 - 225.0235f, 0);
-            rect.transform.localScale = new Vector3(1, 1, 1);
+            rect.transform.localPosition = new Vector3((step * (i + 1)) - 450, 120 - 225.0235f, 0);
+            rect.transform.localScale = new Vector3(0.95f, 0.95f, 1);
         }
     }
     public void DrawNewCard(uint Index)
@@ -122,9 +131,39 @@ public class GameManager : MonoBehaviour
     }
     public void EndTurn()
     {
+        switch(info.Enemy.CurrentMood)
+        {
+            case Mood.Healing:
+                info.Enemy.HealthPoints += info.Enemy.MaxHealth / 10;
+                if (info.Enemy.HealthPoints > info.Enemy.MaxHealth)
+                    info.Enemy.HealthPoints = info.Enemy.MaxHealth;
+                break;
+        }
         info.Stamina = info.MaxStamina;
-        if(info.Player.HealthPoints > info.Enemy.AttackDamage)
+        if(info.Player.CurrentMood == Mood.Thorns)
+        {
+            if (info.Enemy.HealthPoints > info.Player.AttackDamage)
+            {
+                info.Enemy.HealthPoints -= info.Player.AttackDamage;
+            }
+            else
+            {
+                info.Enemy.HealthPoints = 0;
+                LostGame();
+            }
+        }
+        if (info.Player.HealthPoints > info.Enemy.AttackDamage)
+        {
             info.Player.HealthPoints -= info.Enemy.AttackDamage;
+            switch (info.Player.CurrentMood)
+            {
+                case Mood.Healing:
+                    info.Player.HealthPoints += info.Player.MaxHealth / 10;
+                    if (info.Player.HealthPoints > info.Player.MaxHealth)
+                        info.Player.HealthPoints = info.Player.MaxHealth;
+                    break;
+            }
+        }
         else
         {
             info.Player.HealthPoints = 0;
