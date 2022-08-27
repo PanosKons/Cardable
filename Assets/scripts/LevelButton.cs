@@ -11,8 +11,8 @@ public class LevelButton : MonoBehaviour
     {
         if (Level > LevelManager.UnlockedLevel)
         {
-            first.color = Color.red;
-            second.color = new Color(1, 0, 0, 0.5f);
+            first.color = new Color(0.6f, 0.6f, 0.6f, 1);
+            second.color = new Color(0.6f, 0.6f, 0.6f, 0.5f);
         }
         else if (Level == LevelManager.UnlockedLevel)
         {
@@ -21,8 +21,8 @@ public class LevelButton : MonoBehaviour
         }
         else
         {
-            first.color = Color.green;
-            second.color = new Color(0, 1, 0, 0.5f);
+            first.color = Color.yellow;
+            second.color = new Color(1, 1, 0, 0.5f);
         }
     }
 }

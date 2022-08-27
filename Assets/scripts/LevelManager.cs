@@ -19,6 +19,7 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance;
     public static bool FirstTime = true;
     public static int CurrentLevel = 0;
+    public Sprite[] Expressions;
     private void Start()
     {
         if (FirstTime == true)
@@ -50,7 +51,7 @@ public class LevelManager : MonoBehaviour
     }
     public void PlayLevel(int Index)
     {
-        if(UnlockedLevel >= Index)
+        if(UnlockedLevel >= Index && GameManager.GetFirstAvaiableSlot(GameManager.Deck) != 0)
         {
             GameManager.info = Levels[Index];
             CurrentLevel = Index;

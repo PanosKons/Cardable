@@ -16,7 +16,7 @@ public struct LevelInfo
 }
 public enum EffectType
 {
-    AttackDamageIncement,HealthPointsIncrement, AttackDamageDecrement, HealthPointsDecrement,Attack,MaxStaminaIncrement,MaxStaminaDecrement,CardIncrement,CardDecrement,DoubleEffect,SetMood
+    AttackDamageIncement,HealthPointsIncrement, AttackDamageDecrement, HealthPointsDecrement,Attack,MaxStaminaIncrement,MaxStaminaDecrement,CardIncrement,CardDecrement,DoubleEffect,SetMood,SetExpression
 }
 [System.Serializable]
 public class Effect
@@ -49,6 +49,8 @@ public class Effect
                 return "Next card x" + effectMagnitude;
             case EffectType.SetMood:
                 return "Apply " + ((Mood)(effectMagnitude)).ToString();
+            case EffectType.SetExpression:
+                return "Make " + ((Expression)(effectMagnitude)).ToString();
             default: throw new System.Exception();
         }
     }
@@ -71,6 +73,10 @@ public enum Mood
 {
     None,Healing,Thorns,Rage
 }
+public enum Expression
+{
+    Calm, Chill, Angry, Destruct
+}
 [System.Serializable]
 public struct Entity
 {
@@ -78,6 +84,7 @@ public struct Entity
     public uint AttackDamage;
     public uint MaxHealth;
     public Mood CurrentMood;
+    public Expression CurrentExpression;
 }
 public class GameManager : MonoBehaviour
 {
@@ -90,6 +97,7 @@ public class GameManager : MonoBehaviour
     public GameObject CardDisplayPrefab;
     public Transform Canvas;
     public bool Rerolling;
+    public Sprite[] Expressions;
     private void Start()
     {
         Instance = this;
@@ -116,7 +124,7 @@ public class GameManager : MonoBehaviour
             GameObject cardDisplay = Instantiate(CardDisplayPrefab, Canvas, true);
             cardDisplay.GetComponent<CardDisplay>().CardId = i;
             RectTransform rect = cardDisplay.GetComponent<RectTransform>();
-            rect.transform.localPosition = new Vector3((step * (i + 1)) - 450, 120 - 225.0235f, 0);
+            rect.transform.localPosition = new Vector3((step * (i + 1)) - 450, 130 - 225.0235f, 0);
             rect.transform.localScale = new Vector3(0.95f, 0.95f, 1);
         }
     }
